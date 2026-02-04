@@ -1,0 +1,47 @@
+---
+# ==========================================================
+# ROLE: web_server
+# Deploys a lightweight Nginx container for serving
+# static website content.
+# ==========================================================
+
+- name: Create Nginx service user and group
+  ansible.builtin.user:
+    name: "{{ nginx_user }}"
+    system: yes
+    shell: /sbin/nologin
+    comment: "System user for Nginx web server"
+
+- name: Create Nginx application and web content directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/web-server"
+    - "{{ app_data_base_path }}/www/html"
+
+- name: Deploy a default index.html page
+  ansible.builtin.copy:
+    src: index.html # Copies the file from the 'files' directory
+    dest: "{{ app_data_base_path }}/www/html/index.html"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0644'
+
+- name: Template the Nginx docker-compose.yml file
+  ansible.builtin.template:
+    src: web-server-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/web-server/docker-compose.yml"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart web server service
+
+- name: Ensure the Nginx web server service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/web-server"
+    state: present
