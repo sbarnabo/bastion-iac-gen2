@@ -27,7 +27,7 @@
 
 - name: Create Pi-hole service user and group
   ansible.builtin.user:
-    name: pihole-svc
+    name: "{{ pihole_user }}"
     system: yes
     shell: /sbin/nologin
     comment: "System user for Pi-hole service"
@@ -36,8 +36,8 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: pihole-svc
-    group: pihole-svc
+    owner: "{{ pihole_user }}"
+    group: "{{ pihole_user }}"
     mode: '0755'
   loop:
     - "{{ app_config_base_path }}/pihole"
@@ -48,8 +48,8 @@
   ansible.builtin.template:
     src: pihole-docker-compose.yml.j2
     dest: "{{ app_config_base_path }}/pihole/docker-compose.yml"
-    owner: pihole-svc
-    group: pihole-svc
+    owner: "{{ pihole_user }}"
+    group: "{{ pihole_user }}"
     mode: '0600'
   no_log: true
   notify: Restart pihole service
