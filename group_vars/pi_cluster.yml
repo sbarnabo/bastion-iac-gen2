@@ -1,26 +1,9 @@
 ---
-# ==============================================================================
-# Bastion IaC (Gen 2) - Non-Sensitive Cluster-Wide Variables
-# ==============================================================================
-# This file contains all non-sensitive configuration that applies to any host
-# in the 'pi_cluster' group. Ansible loads this automatically.
-#
-# ACTION: You must review and update the placeholder IP addresses in the
-#         'Service URL and Host Configuration' section for your services
-#         to function correctly.
-# ==============================================================================
-
-# --- Security Configuration ---
-# Allow SSH access only from this IP address or subnet.
-ssh_allow_from_ip: "192.168.1.0/24" # Example: Allows access from any host on the 192.168.1.x network
-
-# --- Path Configuration ---
-# Centralized base paths for all deployed application configurations and data.
+# Non-sensitive variables applicable to the entire pi_cluster
+ssh_allow_from_ip: "192.168.1.0/24"
 app_config_base_path: /opt/ansible-services
 app_data_base_path: /mnt/storage
-
-# --- Service User Definitions ---
-# Defines the dedicated system user for each service.
+# Service user definitions
 minio_user: minio-svc
 gitea_user: gitea-svc
 drone_user: drone-svc
@@ -30,21 +13,9 @@ opencti_user: opencti-svc
 nginx_user: nginx-svc
 registry_user: registry-svc
 pihole_user: pihole-svc
-home_assistant_user: home-assistant-svc # Included for future use
-
-# --- Service URL and Host Configuration ---
-# These variables are used to configure services to talk to each other.
-# IMPORTANT: Replace the placeholder IP addresses with the real IPs from your inventory.
-
-# Gitea URL (for Drone and Authentik integration)
-gitea_root_url: "http://<IP_of_Pi5>:3000/"
-
-# Drone Server Host (for runners to connect to)
-drone_server_host: "<IP_of_Pi4B_8GB>"
-
-# Authentik Server URL (for other services to use for SSO)
-# This will eventually be a hostname like 'https://auth.your-domain.com' via the reverse proxy.
-authentik_external_url: "http://<IP_of_Pi5>:9001"
-
-# Pi-hole Host IP (for clients and router to use as their DNS server)
+home_assistant_user: home-assistant-svc #Planned 
+# Service URL and Host Configuration
+gitea_root_url: "http://gitea.local/" # Use hostname now
+drone_server_host: "pi4-intel"
+authentik_external_url: "https://auth.local" # Use hostname now
 pihole_host_ip: "<IP_of_Pi4B_other>"
