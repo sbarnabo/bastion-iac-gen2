@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer_server
+    command:
+      -H unix:///var/run/docker.sock
+      --admin-password '{{ portainer_password_hash.stdout }}'
+    ports:
+      - "9443:9443"
+      - "8000:8000"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{ app_data_base_path }}/portainer/data:/data"
