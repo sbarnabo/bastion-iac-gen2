@@ -28,3 +28,19 @@ portainer_admin_password: "YourSuperSecurePortainerAdminPassword"
 authentik_db_password: "YourSuperSecureAuthentikDbPassword"
 # A secret key used by Authentik for internal operations
 authentik_secret_key: "YourLongRandomAuthentikSecretKey"
+
+# --- OpenCTI Credentials & Tokens ---
+# A random UUID for the platform
+opencti_token: "Your_Generated_UUID_v4"
+# Admin user credentials for the OpenCTI UI
+opencti_admin_email: "admin@example.com"
+opencti_admin_password: "YourSuperSecureOpenCTIPassword"
+opencti_admin_token: "Your_Second_Generated_UUID_v4"
+
+# Credentials for the internal message bus
+rabbitmq_username: "YourRabbitMQUser"
+rabbitmq_password: "YourSuperSecureRabbitMQPassword"
+
+# Credentials for the internal database
+minio_access_key: "{{ minio_root_user }}" # Re-using MinIO creds for OpenCTI's S3 connection
+minio_secret_key: "{{ minio_root_password }}"
