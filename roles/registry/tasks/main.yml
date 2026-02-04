@@ -1,0 +1,39 @@
+---
+# ==========================================================
+# ROLE: registry
+# Deploys a private, self-hosted Docker Registry.
+# ==========================================================
+
+- name: Create Registry service user and group
+  ansible.builtin.user:
+    name: "{{ registry_user }}"
+    system: yes
+    shell: /sbin/nologin
+    group: docker
+    comment: "System user for Docker Registry service"
+
+- name: Create Registry application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ registry_user }}"
+    group: "{{ registry_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/registry"
+    - "{{ app_data_base_path }}/registry/data"
+
+- name: Template the Registry docker-compose.yml file
+  ansible.builtin.template:
+    src: registry-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/registry/docker-compose.yml"
+    owner: "{{ registry_user }}"
+    group: "{{ registry_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart registry service
+
+- name: Ensure the Docker Registry service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/registry"
+    state: present
