@@ -44,3 +44,10 @@ rabbitmq_password: "YourSuperSecureRabbitMQPassword"
 # Credentials for the internal database
 minio_access_key: "{{ minio_root_user }}" # Re-using MinIO creds for OpenCTI's S3 connection
 minio_secret_key: "{{ minio_root_password }}"
+
+Edit group_vars/all.yml (ansible-vault edit ...) and add:
+
+yaml
+# In group_vars/all.yml
+# --- Pi-hole Credentials ---
+pihole_webpassword: "YourSuperSecurePiholeAdminPassword"
