@@ -31,7 +31,9 @@
 
   roles:
     - role: gitea
-    - role: minio   # <-- ADD THIS ROLE
+    - role: minio
+    - role: registry
+
 
   handlers:
     - name: Restart gitea service
@@ -42,10 +44,18 @@
         restarted: yes
       become: true
 
-      - name: Restart minio service
+    - name: Restart minio service
       listen: "Restart minio service"
       community.docker.docker_compose_v2:
         project_src: "{{ app_config_base_path }}/minio"
+        state: present
+        restarted: yes
+      become: true
+      
+    - name: Restart registry service
+      listen: "Restart registry service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/registry"
         state: present
         restarted: yes
       become: true
