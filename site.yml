@@ -24,3 +24,19 @@
         pre_reboot_delay: 0
         post_reboot_delay: 30
         test_command: whoami
+
+- name: Play 2 - Deploy Core Services to the Hub Node
+  hosts: core_hub
+  become: true
+
+  roles:
+    - role: gitea
+
+  handlers:
+    - name: Restart gitea service
+      listen: "Restart gitea service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/gitea"
+        state: present
+        restarted: yes
+      become: true
