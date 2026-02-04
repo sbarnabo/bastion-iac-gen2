@@ -32,7 +32,7 @@
     group: "{{ gitea_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart gitea service
+  notify: restart_gitea
 
 - name: Ensure the Gitea Docker service is started
   community.docker.docker_compose_v2:
