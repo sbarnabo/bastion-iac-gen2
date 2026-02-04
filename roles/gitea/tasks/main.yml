@@ -1,0 +1,40 @@
+---
+# ==========================================================
+# ROLE: gitea
+# Deploys the Gitea self-hosted Git service.
+# ==========================================================
+
+- name: Create Gitea service user and group
+  ansible.builtin.user:
+    name: "{{ gitea_user }}"
+    system: yes
+    shell: /sbin/nologin
+    group: docker
+    comment: "System user for Gitea service"
+
+- name: Create Gitea application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/gitea"
+    - "{{ app_data_base_path }}/gitea/data"
+    - "{{ app_config_base_path }}/gitea/postgres"
+
+- name: Template the Gitea docker-compose.yml file
+  ansible.builtin.template:
+    src: gitea-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/gitea/docker-compose.yml"
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart gitea service
+
+- name: Ensure the Gitea Docker service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/gitea"
+    state: present
