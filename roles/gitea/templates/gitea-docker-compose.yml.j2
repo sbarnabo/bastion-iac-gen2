@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea_server
+    environment:
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD={{ gitea_db_password }}
+      - GITEA__server__ROOT_URL={{ gitea_root_url }}
+    restart: always
+    networks:
+      - gitea-net
+    volumes:
+      - "{{ app_data_base_path }}/gitea/data:/data"
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14-alpine
+    container_name: gitea_db
+    restart: always
+    environment:
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD={{ gitea_db_password }}
+      - POSTGRES_DB=gitea
+    networks:
+      - gitea-net
+    volumes:
+      - "./postgres:/var/lib/postgresql/data"
+
+networks:
+  gitea-net:
+    external: false
