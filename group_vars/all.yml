@@ -47,7 +47,11 @@ minio_secret_key: "{{ minio_root_password }}"
 
 Edit group_vars/all.yml (ansible-vault edit ...) and add:
 
-yaml
 # In group_vars/all.yml
 # --- Pi-hole Credentials ---
 pihole_webpassword: "YourSuperSecurePiholeAdminPassword"
+
+Run ansible-vault edit group_vars/all.yml and add the admin credentials you set up when you first logged into Nginx Proxy Manager.
+
+npm_admin_user: "admin@example.com" # The email you used
+npm_admin_password: "YourNPMAdminPassword"
