@@ -35,6 +35,7 @@
     - role: registry
     - role: reverse_proxy
     - role: web_server
+    - role: authentik 
 
 
   handlers:
@@ -74,6 +75,14 @@
       listen: "Restart web server service"
       community.docker.docker_compose_v2:
         project_src: "{{ app_config_base_path }}/web-server"
+        state: present
+        restarted: yes
+      become: true
+
+    - name: Restart authentik service
+      listen: "Restart authentik service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/authentik"
         state: present
         restarted: yes
       become: true
