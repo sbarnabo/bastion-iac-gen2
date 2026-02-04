@@ -32,12 +32,10 @@ services:
     container_name: authentik_server
     restart: unless-stopped
     command: server
-    ports:
-   #   - "9001:9000" # Exposing on host 9001 to avoid conflict with MinIO
-   #   - "9444:9443" # Exposing on host 9444 to avoid conflict with Portainer
+    # No ports are exposed to the host. Access is via the reverse proxy.
     volumes:
       - "{{ app_data_base_path }}/authentik/media:/media"
-      - "{{ app_data_base_path }}/authentik/templates:/templates"
+      - "{{ app_data_base_path }}/authentik/custom-templates:/templates"
     environment:
       - AUTHENTIK_SECRET_KEY={{ authentik_secret_key }}
       - AUTHENTIK_POSTGRESQL__HOST=postgresql
@@ -57,7 +55,7 @@ services:
     volumes:
       - "{{ app_data_base_path }}/authentik/media:/media"
       - "{{ app_data_base_path }}/authentik/certs:/certs"
-      - "{{ app_data_base_path }}/authentik/templates:/templates"
+      - "{{ app_data_base_path }}/authentik/custom-templates:/templates"
     environment:
       - AUTHENTIK_SECRET_KEY={{ authentik_secret_key }}
       - AUTHENTIK_POSTGRESQL__HOST=postgresql
