@@ -33,8 +33,8 @@ services:
     restart: unless-stopped
     command: server
     ports:
-      - "9001:9000" # Exposing on host 9001 to avoid conflict with MinIO
-      - "9444:9443" # Exposing on host 9444 to avoid conflict with Portainer
+   #   - "9001:9000" # Exposing on host 9001 to avoid conflict with MinIO
+   #   - "9444:9443" # Exposing on host 9444 to avoid conflict with Portainer
     volumes:
       - "{{ app_data_base_path }}/authentik/media:/media"
       - "{{ app_data_base_path }}/authentik/templates:/templates"
