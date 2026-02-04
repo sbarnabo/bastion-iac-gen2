@@ -1,0 +1,30 @@
+# ==============================================================================
+# Bastion IaC (Gen 2) - Encrypted Secrets
+#
+# This file contains all sensitive credentials for the entire cluster.
+# It is encrypted with Ansible Vault and loaded automatically for all hosts.
+# EDIT THIS FILE WITH: ansible-vault edit group_vars/all.yml
+# ==============================================================================
+
+# --- MinIO Credentials ---
+minio_root_user: "YourMinioAdminUser"
+minio_root_password: "YourSuperSecureMinioPassword"
+
+# --- Gitea Credentials ---
+gitea_db_password: "YourSuperSecureGiteaDbPassword"
+
+# --- Drone CI Credentials ---
+# Shared secret between the Drone Server and its Runners
+drone_rpc_secret: "YourLongRandomDroneRPCSecret"
+# OAuth2 credentials from Gitea for Drone integration
+drone_gitea_client_id: "YourGiteaClientID"
+drone_gitea_client_secret: "YourGiteaClientSecret"
+
+# --- Portainer Credentials ---
+portainer_admin_password: "YourSuperSecurePortainerAdminPassword"
+
+# --- Authentik Credentials ---
+# Password for the internal PostgreSQL database used by Authentik
+authentik_db_password: "YourSuperSecureAuthentikDbPassword"
+# A secret key used by Authentik for internal operations
+authentik_secret_key: "YourLongRandomAuthentikSecretKey"
