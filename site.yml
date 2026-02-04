@@ -31,12 +31,21 @@
 
   roles:
     - role: gitea
+    - role: minio   # <-- ADD THIS ROLE
 
   handlers:
     - name: Restart gitea service
       listen: "Restart gitea service"
       community.docker.docker_compose_v2:
         project_src: "{{ app_config_base_path }}/gitea"
+        state: present
+        restarted: yes
+      become: true
+
+      - name: Restart minio service
+      listen: "Restart minio service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/minio"
         state: present
         restarted: yes
       become: true
