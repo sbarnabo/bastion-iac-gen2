@@ -102,3 +102,19 @@
         state: present
         restarted: yes
       become: true
+
+- name: Play 4 - Deploy Management Services to the Mgmt Node
+  hosts: mgmt_node
+  become: true
+
+  roles:
+    - role: portainer
+
+  handlers:
+    - name: Restart portainer service
+      listen: "Restart portainer service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/portainer"
+        state: present
+        restarted: yes
+      become: true
