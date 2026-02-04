@@ -1,26 +1,13 @@
 ---
-# ==============================================================================
-# Bastion IaC (Gen 2) - Master Playbook
-# ==============================================================================
-# This is the main entry point for configuring the entire Raspberry Pi cluster.
-# It is organized into "plays," with each play targeting a specific group
-# of hosts and applying the necessary roles to them.
-# ==============================================================================
-
 - name: Play 1 - Apply common baseline to ALL nodes
   hosts: pi_cluster
   become: true
   roles:
     - role: common
   handlers:
-    - name: Reboot host to apply group changes
-      listen: "Reboot host to apply group changes"
-      ansible.builtin.reboot:
-        msg: "Rebooting to apply group membership changes..."
-        connect_timeout: 5
-        reboot_timeout: 600
-        post_reboot_delay: 30
-        test_command: whoami
+    - name: Reboot host # RENAMED
+      listen: reboot_host # RENAMED
+      ansible.builtin.reboot: { msg: "Rebooting...", connect_timeout: 5, reboot_timeout: 600, post_reboot_delay: 30, test_command: whoami }
       become: true
 
 - name: Play 2 - Deploy Core Services to the Hub Node
@@ -34,28 +21,28 @@
     - role: web_server
     - role: authentik
   handlers:
-    - name: Restart gitea service
-      listen: "Restart gitea service"
+    - name: Restart Gitea # RENAMED
+      listen: restart_gitea # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/gitea", state: present, restarted: yes }
       become: true
-    - name: Restart minio service
-      listen: "Restart minio service"
+    - name: Restart MinIO # RENAMED
+      listen: restart_minio # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/minio", state: present, restarted: yes }
       become: true
-    - name: Restart registry service
-      listen: "Restart registry service"
+    - name: Restart Registry # RENAMED
+      listen: restart_registry # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/registry", state: present, restarted: yes }
       become: true
-    - name: Restart reverse proxy service
-      listen: "Restart reverse proxy service"
+    - name: Restart Reverse Proxy # RENAMED
+      listen: restart_reverse_proxy # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/reverse-proxy", state: present, restarted: yes }
       become: true
-    - name: Restart web server service
-      listen: "Restart web server service"
+    - name: Restart Web Server # RENAMED
+      listen: restart_web_server # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/web-server", state: present, restarted: yes }
       become: true
-    - name: Restart authentik service
-      listen: "Restart authentik service"
+    - name: Restart Authentik # RENAMED
+      listen: restart_authentik # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/authentik", state: present, restarted: yes }
       become: true
 
@@ -65,8 +52,8 @@
   roles:
     - role: opencti
   handlers:
-    - name: Restart opencti service
-      listen: "Restart opencti service"
+    - name: Restart OpenCTI # RENAMED
+      listen: restart_opencti # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/opencti", state: present, restarted: yes }
       become: true
 
@@ -75,13 +62,13 @@
   become: true
   roles:
     - role: portainer
-    - role: pihole  # <-- ADDED
+    - role: pihole
   handlers:
-    - name: Restart portainer service
-      listen: "Restart portainer service"
+    - name: Restart Portainer # RENAMED
+      listen: restart_portainer # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/portainer", state: present, restarted: yes }
       become: true
-    - name: Restart pihole service
-      listen: "Restart pihole service"
+    - name: Restart Pi-hole # RENAMED
+      listen: restart_pihole # RENAMED
       community.docker.docker_compose_v2: { project_src: "{{ app_config_base_path }}/pihole", state: present, restarted: yes }
       become: true
