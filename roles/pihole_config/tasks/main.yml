@@ -1,0 +1,17 @@
+---
+# ==============================================================================
+# ROLE: pihole_config
+#
+# Configures Pi-hole by deploying a custom file for Local DNS records.
+# This role should be run against the 'mgmt_node' where Pi-hole is deployed.
+# ==============================================================================
+
+- name: Template the custom DNS records configuration file for Pi-hole
+  ansible.builtin.template:
+    src: pihole-custom-dns.conf.j2
+    dest: "{{ app_config_base_path }}/pihole/etc-dnsmasq.d/02-custom-dns.conf"
+    owner: "{{ pihole_user }}"
+    group: "{{ pihole_user }}"
+    mode: '0644'
+  no_log: true
+  notify: restart_pihole # Notifies the handler in the main playbook
