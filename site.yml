@@ -33,6 +33,7 @@
     - role: gitea
     - role: minio
     - role: registry
+    - role: reverse_proxy
 
 
   handlers:
@@ -56,6 +57,14 @@
       listen: "Restart registry service"
       community.docker.docker_compose_v2:
         project_src: "{{ app_config_base_path }}/registry"
+        state: present
+        restarted: yes
+      become: true
+    
+    - name: Restart reverse proxy service
+      listen: "Restart reverse proxy service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/reverse-proxy"
         state: present
         restarted: yes
       become: true
