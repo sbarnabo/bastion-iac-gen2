@@ -1,0 +1,39 @@
+---
+# ==========================================================
+# ROLE: minio
+# Deploys the MinIO S3-compatible object storage server.
+# ==========================================================
+
+- name: Create MinIO service user and group
+  ansible.builtin.user:
+    name: "{{ minio_user }}"
+    system: yes
+    shell: /sbin/nologin
+    group: docker
+    comment: "System user for MinIO service"
+
+- name: Create MinIO application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/minio"
+    - "{{ app_data_base_path }}/minio/data"
+
+- name: Template the MinIO docker-compose.yml file
+  ansible.builtin.template:
+    src: minio-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/minio/docker-compose.yml"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart minio service
+
+- name: Ensure the MinIO Docker service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/minio"
+    state: present
