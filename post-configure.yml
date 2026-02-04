@@ -15,6 +15,9 @@
   roles:
     - role: nginx_proxy_manager_config # We will create this new role
 
-# - name: Play 2 - Configure Pi-hole DNS Records
-#   hosts: localhost
-#   ...
+- name: Play 2 - Configure Pi-hole DNS Records
+  hosts: mgmt_node # This targets your Raspberry Pi 4B #2
+  become: true
+  
+  roles:
+    - role: pihole_config
