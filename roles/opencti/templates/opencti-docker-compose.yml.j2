@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: opencti_rabbitmq
+    restart: always
+    volumes:
+      - "{{ app_data_base_path }}/opencti/rmqdata:/var/lib/rabbitmq"
+    environment:
+      - RABBITMQ_DEFAULT_USER={{ rabbitmq_username }}
+      - RABBITMQ_DEFAULT_VHOST=opencti
+      - RABBITMQ_DEFAULT_PASS={{ rabbitmq_password }}
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    container_name: opencti_elasticsearch
+    volumes:
+      - "{{ app_data_base_path }}/opencti/esdata:/usr/share/elasticsearch/data"
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g" # Constrain RAM usage for the Pi
+    restart: always
+
+  redis:
+    image: redis:7.0
+    container_name: opencti_redis
+    restart: always
+    volumes:
+      - "{{ app_data_base_path }}/opencti/redisdata:/data"
+
+  opencti:
+    image: opencti/platform:5.8.4
+    container_name: opencti_server
+    ports:
+      - "8081:8080" # Expose OpenCTI on host port 8081
+    depends_on: [rabbitmq, elasticsearch, redis]
+    restart: always
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=2048 # Constrain RAM
+      - APP__PORT=8080
+      - APP__BASE_URL=http://<IP_of_Pi4B_8GB>:8081 # IMPORTANT: Use Pi 4's IP
+      - APP__ADMIN__EMAIL={{ opencti_admin_email }}
+      - APP__ADMIN__PASSWORD={{ opencti_admin_password }}
+      - APP__ADMIN__TOKEN={{ opencti_admin_token }}
+      - APP__APP_LOGS__LOGS_LEVEL=error
+      - RABBITMQ__HOSTNAME=rabbitmq
+      - RABBITO__USERNAME={{ rabbitmq_username }}
+      - RABBITMQ__PASSWORD={{ rabbitmq_password }}
+      - ELASTICSEARCH__URL=http://elasticsearch:9200
+      - REDIS__HOSTNAME=redis
+      - MINIO__ENDPOINT=<IP_of_Pi5> # Point to your Pi 5
+      - MINIO__PORT=9000
+      - MINIO__ACCESS_KEY={{ minio_access_key }}
+      - MINIO__SECRET_KEY={{ minio_secret_key }}
+
+  # Add worker and connector containers as needed here
