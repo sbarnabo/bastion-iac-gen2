@@ -1,0 +1,70 @@
+---
+# ==============================================================================
+# ROLE: common
+#
+# This role applies a universal baseline configuration to ALL nodes in the
+# cluster. It ensures every server is secure, consistent, and has the
+# necessary core software installed.
+# ==============================================================================
+
+- name: Gather facts from the package manager
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Update APT package cache if it's more than a day old
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 86400 # 24 hours
+  
+- name: Install essential system packages
+  ansible.builtin.apt:
+    name:
+      - git
+      - ufw             # Uncomplicated Firewall
+      - fail2ban        # Intrusion prevention for SSH
+      - python3-pip
+      - nfs-common      # For mounting the Synology NAS for backups
+      - rclone          # For syncing files to the NAS
+      - docker.io
+      - docker-compose
+    state: present
+
+- name: Ensure core services are started and enabled on boot
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - docker
+    - fail2ban
+
+- name: Add the ansible admin user to the docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}" # This is 'pi_admin' from our inventory
+    groups: docker
+    append: yes
+  notify: Reboot host to apply group changes # This will trigger the handler in site.yml
+
+- name: Configure the firewall (UFW)
+  block:
+    - name: Reset UFW to a known-clean state
+      community.general.ufw:
+        state: reset
+
+    - name: Set default firewall policies
+      community.general.ufw:
+        direction: "{{ item.direction }}"
+        policy: "{{ item.policy }}"
+      loop:
+        - { direction: 'incoming', policy: 'deny' }
+        - { direction: 'outgoing', policy: 'allow' }
+
+    - name: Allow SSH connections on the firewall from a trusted source
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+        from: "{{ ssh_allow_from_ip }}" # Uses the variable from group_vars
+
+    - name: Enable the firewall
+      community.general.ufw:
+        state: enabled
