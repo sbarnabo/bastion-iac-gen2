@@ -1,0 +1,33 @@
+---
+# ==========================================================
+# ROLE: reverse_proxy
+# Deploys Nginx Proxy Manager to act as the front door
+# for all other web services.
+# ==========================================================
+
+- name: Create Reverse Proxy application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}" # This service can be owned by the admin user
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/reverse-proxy"
+    - "{{ app_data_base_path }}/reverse-proxy/data"
+    - "{{ app_data_base_path }}/reverse-proxy/letsencrypt"
+
+- name: Template the Reverse Proxy docker-compose.yml file
+  ansible.builtin.template:
+    src: reverse-proxy-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/reverse-proxy/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart reverse proxy service
+
+- name: Ensure the Reverse Proxy service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/reverse-proxy"
+    state: present
