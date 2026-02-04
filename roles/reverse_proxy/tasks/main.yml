@@ -25,7 +25,7 @@
     group: "{{ ansible_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart reverse proxy service
+  notify: restart_reverse_proxy
 
 - name: Ensure the Reverse Proxy service is started
   community.docker.docker_compose_v2:
