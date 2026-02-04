@@ -31,7 +31,7 @@
     group: "{{ registry_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart registry service
+  notify: restart_registry
 
 - name: Ensure the Docker Registry service is started
   community.docker.docker_compose_v2:
