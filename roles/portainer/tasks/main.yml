@@ -1,0 +1,45 @@
+---
+# ==========================================================
+# ROLE: portainer
+# Deploys the Portainer container management UI.
+# ==========================================================
+
+- name: Create Portainer service user and group
+  ansible.builtin.user:
+    name: "{{ portainer_user }}"
+    system: yes
+    shell: /sbin/nologin
+    group: docker
+    comment: "System user for Portainer service"
+
+- name: Create Portainer application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ portainer_user }}"
+    group: "{{ portainer_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/portainer"
+    - "{{ app_data_base_path }}/portainer/data"
+
+- name: Generate bcrypt hash for the Portainer admin password
+  ansible.builtin.command: "docker run --rm alpine sh -c 'apk add --no-cache python3 py3-pip && pip install bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw(\\\"{{ portainer_admin_password }}\\\".encode(), bcrypt.gensalt(rounds=12)).decode())\"'"
+  register: portainer_password_hash
+  changed_when: false
+  no_log: true
+
+- name: Template the Portainer docker-compose.yml file
+  ansible.builtin.template:
+    src: portainer-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/portainer/docker-compose.yml"
+    owner: "{{ portainer_user }}"
+    group: "{{ portainer_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart portainer service
+
+- name: Ensure the Portainer Docker service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/portainer"
+    state: present
