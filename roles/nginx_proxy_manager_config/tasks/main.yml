@@ -1,0 +1,48 @@
+---
+# ==============================================================================
+# ROLE: nginx_proxy_manager_config
+#
+# Configures Nginx Proxy Manager by creating all required proxy hosts
+# via its REST API. This playbook runs on localhost.
+# ==============================================================================
+
+- name: Get Nginx Proxy Manager authentication token
+  ansible.builtin.uri:
+    url: "http://{{ hostvars['pi5-control']['ansible_host'] }}:81/api/tokens"
+    method: POST
+    body_format: json
+    body:
+      identity: "{{ npm_admin_user }}"
+      secret: "{{ npm_admin_password }}"
+    validate_certs: no
+  register: npm_auth
+  no_log: true
+
+- name: Set authentication token as a fact
+  ansible.builtin.set_fact:
+    npm_token: "{{ npm_auth.json.token }}"
+    cacheable: no # Do not cache this sensitive token
+
+- name: Create all required proxy hosts
+  ansible.builtin.uri:
+    url: "http://{{ hostvars['pi5-control']['ansible_host'] }}:81/api/nginx/proxy-hosts"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ npm_token }}"
+    body_format: json
+    body:
+      domain_names:
+        - "{{ item.domain }}"
+      forward_scheme: "{{ item.forward_scheme | default('http') }}"
+      forward_host: "{{ item.forward_host }}"
+      forward_port: "{{ item.forward_port }}"
+      allow_websocket_upgrade: true
+      block_exploits: true
+      hsts_enabled: false
+      hsts_subdomains: false
+    validate_certs: no
+    status_code: 201
+  loop: "{{ proxy_hosts }}"
+  # We can't easily check for existence, so this will try to create them every time.
+  # The API will return an error if a host already exists, which we can ignore.
+  ignore_errors: yes
