@@ -1,0 +1,41 @@
+# ==============================================================================
+# Docker Compose Template for the Pi-hole Service
+#
+# This file configures the Pi-hole container, which provides network-wide
+# ad-blocking and local DNS resolution for the Project Bastion ecosystem.
+# ==============================================================================
+version: "3"
+
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    
+    # We must run on the host network to properly handle DNS requests for
+    # all devices on the LAN. This is a special requirement for Pi-hole.
+    network_mode: host
+
+    # Environment variables to configure the container on first start.
+    environment:
+      # The admin password for the web UI, securely injected from Ansible Vault.
+      WEBPASSWORD: '{{ pihole_webpassword }}'
+      
+      # Set your local timezone to ensure logs and stats are correct.
+      # A list of valid timezones can be found here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      TZ: 'America/New_York' # <-- IMPORTANT: Change this to your local timezone
+
+      # Sets the upstream DNS providers that Pi-hole will use.
+      # Format is 'IP1;IP2'. We are using Cloudflare and Google.
+      DNS1: '1.1.1.1'
+      DNS2: '8.8.8.8'
+
+    # Volumes for persisting Pi-hole's configuration and lists.
+    volumes:
+      - '{{ app_config_base_path }}/pihole/etc-pihole:/etc/pihole'
+      - '{{ app_config_base_path }}/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+    
+    # Capabilities required for Pi-hole to manipulate network settings.
+    cap_add:
+      - NET_ADMIN
+      
+    restart: unless-stopped
