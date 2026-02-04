@@ -86,3 +86,19 @@
         state: present
         restarted: yes
       become: true
+
+- name: Play 3 - Deploy Intelligence Platform to the Intel Node
+  hosts: intel_node
+  become: true
+
+  roles:
+    - role: opencti
+
+  handlers:
+    - name: Restart opencti service
+      listen: "Restart opencti service"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_config_base_path }}/opencti"
+        state: present
+        restarted: yes
+      become: true
