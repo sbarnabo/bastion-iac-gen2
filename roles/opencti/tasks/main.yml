@@ -1,0 +1,49 @@
+---
+# ==========================================================
+# ROLE: opencti
+# Deploys the OpenCTI Threat Intelligence Platform.
+# ==========================================================
+
+- name: Create OpenCTI service user and group
+  ansible.builtin.user:
+    name: "{{ opencti_user }}"
+    system: yes
+    shell: /sbin/nologin
+    group: docker
+    comment: "System user for OpenCTI service"
+
+- name: Create OpenCTI application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ opencti_user }}"
+    group: "{{ opencti_user }}"
+    mode: '0775' # Elasticsearch requires more permissive rights
+  loop:
+    - "{{ app_config_base_path }}/opencti"
+    - "{{ app_data_base_path }}/opencti/esdata"
+    - "{{ app_data_base_path }}/opencti/s3data"
+    - "{{ app_data_base_path }}/opencti/redisdata"
+    - "{{ app_data_base_path }}/opencti/rmqdata"
+
+- name: Set vm.max_map_count for Elasticsearch
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '262144'
+    state: present
+    reload: yes
+
+- name: Template the OpenCTI docker-compose.yml file
+  ansible.builtin.template:
+    src: opencti-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/opencti/docker-compose.yml"
+    owner: "{{ opencti_user }}"
+    group: "{{ opencti_user }}"
+    mode: '0600'
+  no_log: true
+  notify: Restart opencti service
+
+- name: Ensure the OpenCTI Docker service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/opencti"
+    state: present
