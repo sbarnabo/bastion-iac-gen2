@@ -1,0 +1,60 @@
+---
+# ==============================================================================
+# ROLE: pihole
+#
+# Deploys the Pi-hole network-wide ad-blocker and local DNS server.
+# ==============================================================================
+
+- name: Disable systemd-resolved to free up DNS port 53
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: stopped
+    enabled: no
+  # This is a critical step. On many modern Linux distributions, systemd-resolved
+  # runs a local caching DNS server on port 53, which will conflict with Pi-hole.
+  # This task stops and disables it before we proceed.
+  register: resolved_status
+
+- name: Point /etc/resolv.conf to a public DNS to maintain host resolution
+  ansible.builtin.copy:
+    content: "nameserver 1.1.1.1\n"
+    dest: /etc/resolv.conf
+    force: yes
+  when: resolved_status.changed
+  # When systemd-resolved is disabled, the host itself can lose DNS. This task
+  # temporarily points the host's own resolver to a public DNS server
+  # (like Cloudflare's) so it can still download Docker images etc.
+
+- name: Create Pi-hole service user and group
+  ansible.builtin.user:
+    name: pihole-svc
+    system: yes
+    shell: /sbin/nologin
+    comment: "System user for Pi-hole service"
+
+- name: Create Pi-hole application and data directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: pihole-svc
+    group: pihole-svc
+    mode: '0755'
+  loop:
+    - "{{ app_config_base_path }}/pihole"
+    - "{{ app_config_base_path }}/pihole/etc-pihole"
+    - "{{ app_config_base_path }}/pihole/etc-dnsmasq.d"
+
+- name: Template the Pi-hole docker-compose.yml file
+  ansible.builtin.template:
+    src: pihole-docker-compose.yml.j2
+    dest: "{{ app_config_base_path }}/pihole/docker-compose.yml"
+    owner: pihole-svc
+    group: pihole-svc
+    mode: '0600'
+  no_log: true
+  notify: Restart pihole service
+
+- name: Ensure the Pi-hole Docker service is started
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_config_base_path }}/pihole"
+    state: present
