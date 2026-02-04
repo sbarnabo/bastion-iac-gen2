@@ -1,0 +1,40 @@
+---
+# ==============================================================================
+# Bastion IaC (Gen 2) - Non-Sensitive Cluster-Wide Variables
+# ==============================================================================
+# This file contains all non-sensitive configuration that applies to any host
+# in the 'pi_cluster' group. Ansible loads this automatically.
+
+# --- Security Configuration ---
+# Allow SSH access only from this IP address or subnet.
+ssh_allow_from_ip: "192.168.1.0/24" # Example: Allows access from any host on the 192.168.1.x network
+
+# --- Path Configuration ---
+# Centralized base paths for all deployed application configurations and data.
+app_config_base_path: /opt/ansible-services
+app_data_base_path: /mnt/storage
+
+# --- Service User Definitions ---
+# Defines the dedicated system user for each service.
+minio_user: minio-svc
+gitea_user: gitea-svc
+drone_user: drone-svc
+portainer_user: portainer-svc
+authentik_user: authentik-svc
+opencti_user: opencti-svc
+nginx_user: nginx-svc
+registry_user: registry-svc
+home_assistant_user: home-assistant-svc
+
+# --- Service URL and Host Configuration ---
+# These variables are used to configure services to talk to each other.
+# IMPORTANT: Replace the placeholder IP addresses with the real IPs from your inventory.
+
+# Gitea URL (for Drone and Authentik integration)
+gitea_root_url: "http://<IP_of_Pi5>:3000/"
+
+# Drone Server Host (for runners to connect to)
+drone_server_host: "<IP_of_Pi4B_8GB>"
+
+# Authentik Server URL (for other services to use for SSO)
+authentik_external_url: "https://auth.your-domain.com" # Placeholder - will be http://<IP_of_Pi5>:9000 initially
