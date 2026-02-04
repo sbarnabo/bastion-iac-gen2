@@ -1,9 +1,9 @@
 ---
-# ==========================================================
+# ==============================================================================
 # ROLE: authentik
-# Deploys the Authentik Identity and Access Management (IAM)
-# platform.
-# ==========================================================
+#
+# Deploys the Authentik Identity and Access Management (IAM) / SSO platform.
+# ==============================================================================
 
 - name: Create Authentik service user and group
   ansible.builtin.user:
@@ -23,9 +23,9 @@
     - "{{ app_config_base_path }}/authentik"
     - "{{ app_data_base_path }}/authentik/db"
     - "{{ app_data_base_path }}/authentik/redis"
-    - "{{ app_data_base_path }}/authentik/certs"
     - "{{ app_data_base_path }}/authentik/media"
-    - "{{ app_data_base_path }}/authentik/templates"
+    - "{{ app_data_base_path }}/authentik/certs"
+    - "{{ app_data_base_path }}/authentik/custom-templates"
 
 - name: Template the Authentik docker-compose.yml file
   ansible.builtin.template:
@@ -35,7 +35,7 @@
     group: "{{ authentik_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart authentik service
+  notify: restart_authentik # Uses the refined handler name
 
 - name: Ensure the Authentik Docker service is started
   community.docker.docker_compose_v2:
