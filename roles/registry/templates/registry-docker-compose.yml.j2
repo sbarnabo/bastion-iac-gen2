@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  registry:
+    image: registry:2
+    container_name: docker_registry
+    ports:
+      - "5000:5000" # The standard Docker Registry port
+    volumes:
+      - "{{ app_data_base_path }}/registry/data:/var/lib/registry"
+    restart: always
