@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  web:
+    image: nginx:alpine
+    container_name: static_web_server
+    # This container is NOT exposed on a public port. It will only be
+    # accessible via the reverse proxy.
+    volumes:
+      - "{{ app_data_base_path }}/www/html:/usr/share/nginx/html:ro" # Mount as read-only for security
+    restart: always
