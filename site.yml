@@ -1,0 +1,26 @@
+---
+# ==============================================================================
+# Bastion IaC (Gen 2) - Master Playbook
+# ==============================================================================
+# This is the main entry point for configuring the entire Raspberry Pi cluster.
+# It is organized into "plays," with each play targeting a specific group
+# of hosts and applying the necessary roles to them.
+# ==============================================================================
+
+- name: Play 1 - Apply common baseline to ALL nodes
+  hosts: pi_cluster   # This targets the group containing all your Raspberry Pis
+  become: true        # Run all tasks in this play with root privileges
+
+  roles:
+    - role: common    # Execute the 'common' role
+
+  handlers:
+    - name: Reboot host to apply group changes
+      listen: "Reboot host to apply group changes"
+      ansible.builtin.reboot:
+        msg: "Rebooting to apply group membership changes..."
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: whoami
