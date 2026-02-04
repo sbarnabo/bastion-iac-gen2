@@ -31,7 +31,7 @@
     group: "{{ minio_user }}"
     mode: '0600'
   no_log: true
-  notify: Restart minio service
+  notify: restart_minio
 
 - name: Ensure the MinIO Docker service is started
   community.docker.docker_compose_v2:
