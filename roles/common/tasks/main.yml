@@ -43,7 +43,7 @@
     name: "{{ ansible_user }}" # This is 'pi_admin' from our inventory
     groups: docker
     append: yes
-  notify: Reboot host to apply group changes # This will trigger the handler in site.yml
+  notify: reboot_host # This will trigger the handler in site.yml
 
 - name: Configure the firewall (UFW)
   block:
