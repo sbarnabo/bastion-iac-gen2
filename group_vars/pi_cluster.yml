@@ -19,3 +19,36 @@ gitea_root_url: "http://gitea.local/" # Use hostname now
 drone_server_host: "pi4-intel"
 authentik_external_url: "https://auth.local" # Use hostname now
 pihole_host_ip: "<IP_of_Pi4B_other>"
+
+# --- Reverse Proxy Configuration ---
+# Defines all services to be exposed via the reverse proxy.
+proxy_hosts:
+  - name: gitea
+    domain: "gitea.local"
+    forward_host: "gitea_server"
+    forward_port: 3000
+  - name: minio
+    domain: "minio.local"
+    forward_host: "minio_server"
+    forward_port: 9001
+  - name: authentik
+    domain: "auth.local"
+    forward_host: "authentik_server"
+    forward_port: 9000
+  - name: opencti
+    domain: "opencti.local"
+    forward_host: "opencti_server"
+    forward_port: 8080
+  - name: portainer
+    domain: "portainer.local"
+    forward_host: "portainer_server"
+    forward_port: 9443
+    forward_scheme: "https" # Portainer uses HTTPS
+  - name: pihole
+    domain: "pihole.local"
+    forward_host: "<IP_of_Pi4B_other>" # Pi-hole runs on host network
+    forward_port: 8088
+  - name: website
+    domain: "www.local"
+    forward_host: "static_web_server"
+    forward_port: 80
