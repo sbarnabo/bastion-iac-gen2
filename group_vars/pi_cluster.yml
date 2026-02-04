@@ -4,6 +4,11 @@
 # ==============================================================================
 # This file contains all non-sensitive configuration that applies to any host
 # in the 'pi_cluster' group. Ansible loads this automatically.
+#
+# ACTION: You must review and update the placeholder IP addresses in the
+#         'Service URL and Host Configuration' section for your services
+#         to function correctly.
+# ==============================================================================
 
 # --- Security Configuration ---
 # Allow SSH access only from this IP address or subnet.
@@ -24,7 +29,8 @@ authentik_user: authentik-svc
 opencti_user: opencti-svc
 nginx_user: nginx-svc
 registry_user: registry-svc
-home_assistant_user: home-assistant-svc
+pihole_user: pihole-svc
+home_assistant_user: home-assistant-svc # Included for future use
 
 # --- Service URL and Host Configuration ---
 # These variables are used to configure services to talk to each other.
@@ -37,7 +43,8 @@ gitea_root_url: "http://<IP_of_Pi5>:3000/"
 drone_server_host: "<IP_of_Pi4B_8GB>"
 
 # Authentik Server URL (for other services to use for SSO)
-authentik_external_url: "https://auth.your-domain.com" # Placeholder - will be http://<IP_of_Pi5>:9000 initially
+# This will eventually be a hostname like 'https://auth.your-domain.com' via the reverse proxy.
+authentik_external_url: "http://<IP_of_Pi5>:9001"
 
-# --- Pi-hole Configuration ---
+# Pi-hole Host IP (for clients and router to use as their DNS server)
 pihole_host_ip: "<IP_of_Pi4B_other>"
