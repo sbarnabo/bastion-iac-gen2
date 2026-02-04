@@ -38,3 +38,6 @@ drone_server_host: "<IP_of_Pi4B_8GB>"
 
 # Authentik Server URL (for other services to use for SSO)
 authentik_external_url: "https://auth.your-domain.com" # Placeholder - will be http://<IP_of_Pi5>:9000 initially
+
+# --- Pi-hole Configuration ---
+pihole_host_ip: "<IP_of_Pi4B_other>"
