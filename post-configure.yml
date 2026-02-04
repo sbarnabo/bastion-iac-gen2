@@ -1,0 +1,20 @@
+---
+# ==============================================================================
+# Bastion IaC - Post-Deployment Configuration Playbook
+# ==============================================================================
+# This playbook runs AFTER site.yml. It connects to the running services
+# via their APIs to perform "Day 2" configuration, such as creating
+# proxy hosts, DNS records, and SSO application links.
+# ==============================================================================
+
+- name: Play 1 - Configure Nginx Proxy Manager
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  roles:
+    - role: nginx_proxy_manager_config # We will create this new role
+
+# - name: Play 2 - Configure Pi-hole DNS Records
+#   hosts: localhost
+#   ...
